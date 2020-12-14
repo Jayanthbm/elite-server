@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 
 	<!--Regular Datatables CSS-->
-	<link href="./css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet">
 	<!--Responsive Extension Datatables CSS-->
 	<link href="./css/responsive.dataTables.min.css" rel="stylesheet">
 

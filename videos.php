@@ -5,6 +5,57 @@
     if (!$_SESSION) {
         header('Location:login.php');
     } else {
+		include_once './conn.php';
+		//Get all store Ids
+		$stores =[];
+		$sQ = "SELECT *
+				FROM stores";
+		$sQR = mysqli_query($conn,$sQ);
+
+		if(mysqli_num_rows($sQR)> 0){
+			while($row = mysqli_fetch_array($sQR)){
+				$id = $row['id'];
+				$storeId = $row['storeId'];
+				$storeName = $row['storeName'];
+				$s = $storeId.' '.$storeName;
+				$tmp = ['id'=>$id,'name'=>$s];
+				array_push($stores,$tmp );
+			}
+		}
+
+		/**
+		 * Get All Categories
+		 */
+		$categories = [];
+		$categoryQuery = "SELECT id,name,slug
+							FROM category";
+		$categoryResult = mysqli_query($conn,$categoryQuery);
+
+		if(mysqli_num_rows($categoryResult)> 0){
+			while($row = mysqli_fetch_array($categoryResult)){
+				$id = $row['id'];
+				$name = $row['name'];
+				$tmp = ['id'=>$id,'name'=>$name];
+				array_push($categories,$tmp);
+			}
+		}
+
+		/**
+		 * Get All Locations
+		 */
+		$locations =[];
+		$locationQuery = "SELECT id,name,slug
+					FROM location";
+		$locationResult = mysqli_query($conn,$locationQuery);
+
+		if(mysqli_num_rows($locationResult)> 0){
+			while($row = mysqli_fetch_array($locationResult)){
+				$id = $row['id'];
+				$name = $row['name'];
+				$tmp = ['id'=>$id,'name'=>$name];
+				array_push($locations,$tmp);
+			}
+		}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -13,9 +64,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Elite -Dashboard</title>
+    <title>Elite -Videos</title>
 
-    <!-- custom css -->
+      <!-- custom css -->
     <link href="./css/styles.css" rel="stylesheet">
     <!-- Tailwind css -->
     <link href="./css/tailwind.min.css" rel="stylesheet">
@@ -23,10 +74,38 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 
 	<!--Regular Datatables CSS-->
-	<link href="./css/jquery.dataTables.min.css" rel="stylesheet">
-	<!--Responsive Extension Datatables CSS-->
-	<link href="./css/responsive.dataTables.min.css" rel="stylesheet">
+	<link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet">
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+	<link rel="stylesheet" href="./css/uploadfile.css" />
+	<style>
+		.switch-field {
+			display: flex;
+			overflow: hidden;
+		}
 
+		.btnn{
+			color: rgba(0, 0, 0, 0.6);
+			font-size: 14px;
+			line-height: 1;
+			text-align: center;
+			padding: 8px 16px;
+			margin-right: -1px;
+			border: 1px solid rgba(0, 0, 0, 0.2);
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+			transition: all 0.1s ease-in-out;
+		}
+		.inactive{
+			background-color: #e4e4e4;
+			box-shadow: none;
+			cursor:'pointer'
+		}
+		.active{
+			background-color: #a5dc86;
+			box-shadow: none;
+			pointer-events: none;
+			cursor: not-allowed;
+		}
+	</style>
 </head>
 <body class="body-bg font-sans leading-normal tracking-normal">
 
@@ -105,24 +184,96 @@
 		<h1 class="flex items-center font-sans font-bold break-normal text-white px-2 py-8 text-xl md:text-2xl">
 			Videos
 		</h1>
-		<button class="modal-open px-4 bg-indigo-500 p-3 rounded-lg text-white text-right hover:bg-indigo-400 mb-2">Upload Video</button>
+		<button class="modal-open px-4 bg-indigo-500 p-3 rounded-lg text-white text-right hover:bg-indigo-400 mb-2" data-toggle="modal" data-target="uploadModal">Upload Video</button>
 		<button class="px-4 bg-indigo-500 p-3 rounded-lg text-white text-right hover:bg-indigo-400 mb-2" onclick="loadData()">Refresh</button>
 		<div id="results"></div>
 		<div id="videolist"></div>
 	</div>
 	<!--/container-->
 
+	<!--Upload Video Modal Start -->
+
+		<div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center" id="uploadModal">
+			<div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+				<div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+
+					<div class="modal-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-white text-sm z-50">
+						<svg class="fill-current text-white" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+							<path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+						</svg>
+						<span class="text-sm">(Esc)</span>
+					</div>
+
+					<!-- Add margin if you want to see some of the overlay behind the modal-->
+					<div class="modal-content py-4 text-left px-6">
+						<!--Title-->
+						<div class="flex justify-between items-center pb-3">
+							<p class="text-2xl font-bold">Upload Video</p>
+							<div class="modal-close cursor-pointer z-50">
+								<svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+								<path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+								</svg>
+							</div>
+						</div>
+
+						<!--Body-->
+						<div id="st">
+							<div class="form-group">
+								<label for="sel1">Select Store's to disable Access:</label> &nbsp;
+								<select class="store-multiple" name="stores[]" multiple="multiple">
+									<?php for($i=0;$i<sizeof($stores);$i++){ ?>
+										<option value="<?php echo $stores[$i]['id'];?>">
+											<?php echo $stores[$i]['name'];?>
+										</option>
+									<?php } ?>
+								</select>
+								<br />
+								<label for="sel2">Select Category</label> &nbsp;
+								<select class="category" name="category">
+									<?php for($i=0;$i<sizeof($categories);$i++){ ?>
+										<option value="<?php echo $categories[$i]['id'];?>">
+											<?php echo $categories[$i]['name'];?>
+										</option>
+									<?php } ?>
+								</select>
+								<br/>
+								<br/>
+								<label for="sel3">Select Location</label> &nbsp;
+								<select class="location" name="location">
+									<?php for($i=0;$i<sizeof($locations);$i++){ ?>
+										<option value="<?php echo $locations[$i]['id'];?>">
+											<?php echo $locations[$i]['name'];?>
+										</option>
+									<?php } ?>
+								</select>
+								<br/>
+								<br/>
+								<button id="ssel" class="px-4 bg-indigo-500 p-3 rounded-lg text-white text-right hover:bg-indigo-400 mb-2" type="button">Done</button>
+							</div>
+                    	</div>
+						<div id="vuu">
+							<div id="sl"></div>
+							<button id="reselect" class="px-4 bg-indigo-500 p-3 rounded-lg text-white text-right hover:bg-indigo-400 mb-2" type="button">Reselect</button>
+							<br /><br />
+							<div id="mulitplefileuploader">Upload Videos</div>
+							<div id="status"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<!--Upload Video Modal End -->
 
  	<!-- Jquery -->
 	<script src="./js/jquery-3.5.1.min.js"></script>
-	<!--Modal -->
+	<!--Modal JS-->
 	<script src="./js/modal.js"></script>
 	<!-- Main Js -->
 	<script src="./js/main.js"></script>
 	<!--Datatables  -->
-	<script src="./js/jquery.dataTables.min.js"></script>
-	<script src="./js/dataTables.responsive.min.js"></script>
-
+	<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+	<script src="./js/jquery.uploadfile.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 	<!-- Ajax Load Content Start-->
 		<script>
 		function loadData(){
@@ -132,18 +283,108 @@
 				url: url,
 				success: function (data) {
 					$('#videolist').html(data);
-					var table = $('#video').DataTable( {
-						responsive: true
-					} )
-					.columns.adjust()
-					.responsive.recalc();
+					$('#video').DataTable();
 				}
-
 			});
 		}
 			$(document).ready(function(){
+				let stores = [];
+				let category= 0;
+				let location=0;
 				loadData();
-			})
+				//Video Uploader
+				category = $('.category').val();
+				location = $('.location').val();
+        		//Intially Hide Video Uploader
+       				$('#vuu').hide();
+					//MultiSelect
+					$('.store-multiple').select2();
+
+					$('select.store-multiple').change(function() {
+						stores = $('.store-multiple').val();
+					});
+
+					$('select.category').change(function() {
+						category = $('.category').val();
+					});
+					$('select.location').change(function() {
+						location = $('.location').val();
+					});
+					//After Stores Selected
+					$('#ssel').click(function() {
+						$('#st').hide();
+						let url;
+						if (stores.length > 0) {
+							url = `upload.php?id=${stores.toString()}&cat=${category}&loc=${location}`;
+						} else {
+							url = `upload.php?&cat=${category}&loc=${location}`;
+						}
+						var settings = {
+							url: url,
+							method: "POST",
+							allowedTypes: "mp4",
+							fileName: "myfile",
+							multiple: true,
+							sequential: true,
+							sequentialCount: 1,
+							onSuccess: function(files, data, xhr) {
+								console.log(data);
+								$('#status').append(`${data}`);
+								loadData();
+							},
+							onError: function(files, status, errMsg) {
+								$("#status").html("<font color='red'>Upload is Failed</font>");
+							}
+						}
+
+						$("#mulitplefileuploader").uploadFile(settings);
+						$('#sl').html(`${stores.length} Stores Selected<br />`);
+						$('#vuu').show();
+
+						$('#reselect').click(function() {
+            				$('#vuu').hide();
+            				$('#st').show();
+        				});
+
+						$("#vu").click(function() {
+							$("#uploadvideo").modal({
+								backdrop: 'static',
+								keyboard: false
+							});
+						});
+					})
+			});
+			function globalUpdate(id,status){
+				let url = `global_action.php?id=${id}&global=${status}`;
+				console.log(url);
+				$.ajax({
+					type: "GET",
+					url: url,
+					success: function (data) {
+						loadData();
+					}
+				});
+			}
+			function UpdateAccess(id){
+				let url =`videoAccess.php?id=${id}`;
+				popupWindow(url, 'Video Access', window, 600, 500);
+			}
+			function deleteVideo(id,name){
+				let url =`delete_action.php?vid=${id}&vname=${name}`;
+				$.ajax({
+					type: "GET",
+					url: url,
+					success: function (data) {
+						loadData();
+					}
+
+				});
+			}
+			function popupWindow(url, title, win, w, h) {
+            	const y = win.top.outerHeight / 2 + win.top.screenY - (h / 2);
+            	const x = win.top.outerWidth / 2 + win.top.screenX - (w / 2);
+            	return win.open(url, title, `toolbar=no, location=no, directories=no, status=no, menubar=no, scrollbars=no,resizable=no, copyhistory=no, width=${w}, height=${h}, top=${y}, left=${x}`);
+        }
 		</script>
 	<!-- Ajax Load Content End-->
 

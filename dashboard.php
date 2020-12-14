@@ -5,6 +5,57 @@
     if (!$_SESSION) {
         header('Location:login.php');
     } else {
+        include('./conn.php');
+
+        /**
+         * Total Videos
+         */
+        $vq =  "SELECT COUNT(*)
+                FROM videos
+                where isPublished =1";
+        $vqr = mysqli_query($conn,$vq);
+        $videos = mysqli_fetch_array($vqr)[0];
+
+        /**
+         * Total Video Plays
+         */
+        $tvq =  "SELECT COUNT(*)
+                FROM videos
+                where isPublished =1";
+        $tvqr = mysqli_query($conn,$tvq);
+        $tplays = mysqli_fetch_array($tvqr)[0];
+
+        /**
+         * Total Stores
+         */
+        $sq =  "SELECT COUNT(*)
+                FROM stores";
+        $sqr = mysqli_query($conn,$sq);
+        $stores = mysqli_fetch_array($sqr)[0];
+
+        /**
+         * Total Active Stores
+         */
+        $asq =  "SELECT COUNT(*)
+                FROM stores";
+        $asqr = mysqli_query($conn,$asq);
+        $astores = mysqli_fetch_array($asqr)[0];
+
+        /**
+         * Total Categories
+         */
+        $cq =  "SELECT COUNT(*)
+                FROM category";
+        $cqr = mysqli_query($conn,$cq);
+        $categories = mysqli_fetch_array($cqr)[0];
+
+        /**
+         * Total Locations
+         */
+        $lq =  "SELECT COUNT(*)
+                FROM location";
+        $lqr = mysqli_query($conn,$lq);
+        $locations = mysqli_fetch_array($lqr)[0];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +79,7 @@
 </head>
 <body class="body-bg font-sans leading-normal tracking-normal">
 
-<nav id="header" class="bg-gray-900 fixed w-full z-10 top-0 shadow">
+    <nav id="header" class="bg-gray-900 fixed w-full z-10 top-0 shadow">
 
 
 		<div class="w-full container mx-auto flex flex-wrap items-center mt-0 pt-3 pb-3 md:pb-0">
@@ -116,13 +167,14 @@
                             <div class="flex-1 text-center md:text-center">
                                 <h5 class="font-bold text-2xl">Videos</h5>
                                 <a href="./videos.php">
-                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200">100</h3>
+                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"><?php echo $videos;?></h3>
                                 </a>
                             </div>
                         </div>
                     </div>
                     <!--/Metric Card-->
                 </div>
+
                 <div class="w-full md:w-1/2 xl:w-1/3 p-3">
                     <!--Metric Card-->
                     <div class="rounded bg-gray-200 border border-white-800 rounded shadow p-2">
@@ -133,13 +185,14 @@
                             <div class="flex-1 text-center md:text-center">
                                 <h5 class="font-bold text-2xl">Stores </h5>
                                 <a href="./stores.php">
-                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200">100</h3>
+                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"><?php echo $stores;?></h3>
                                 </a>
                             </div>
                         </div>
                     </div>
                     <!--/Metric Card-->
                 </div>
+
                 <div class="w-full md:w-1/2 xl:w-1/3 p-3">
                     <!--Metric Card-->
                     <div class="rounded bg-gray-200 border border-white-800 rounded shadow p-2">
@@ -150,13 +203,14 @@
                             <div class="flex-1 text-center md:text-center">
                                 <h5 class="font-bold text-2xl">Categories</h5>
                                 <a href="./categories.php">
-                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200">100</h3>
+                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"><?php echo $categories;?></h3>
                                 </a>
                             </div>
                         </div>
                     </div>
                     <!--/Metric Card-->
                 </div>
+
                 <div class="w-full md:w-1/2 xl:w-1/3 p-3">
                     <!--Metric Card-->
                     <div class="rounded bg-gray-200 border border-white-800 rounded shadow p-2">
@@ -166,12 +220,13 @@
                             </div>
                             <div class="flex-1 text-center md:text-center">
                                 <h5 class="font-bold text-2xl">Total Plays</h5>
-                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"> 100</h3>
+                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"> <?php echo $tplays;?></h3>
                             </div>
                         </div>
                     </div>
                     <!--/Metric Card-->
                 </div>
+
                 <div class="w-full md:w-1/2 xl:w-1/3 p-3">
                     <!--Metric Card-->
                     <div class="rounded bg-gray-200 border border-white-800 rounded shadow p-2">
@@ -181,12 +236,13 @@
                             </div>
                             <div class="flex-1 text-center md:text-center">
                                 <h5 class="font-bold text-2xl">Active Stores</h5>
-                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"> 100</h3>
+                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"> <?php echo $astores;?></h3>
                             </div>
                         </div>
                     </div>
                     <!--/Metric Card-->
                 </div>
+
                 <div class="w-full md:w-1/2 xl:w-1/3 p-3">
                     <!--Metric Card-->
                     <div class="rounded bg-gray-200 border border-white-800 rounded shadow p-2">
@@ -197,13 +253,14 @@
                             <div class="flex-1 text-center md:text-center">
                                 <h5 class="font-bold text-2xl">Locations</h5>
                                 <a href="./locations.php">
-                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200">100</h3>
+                                <h3 class="bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 rounded shadow-lg hover:shadow-xl transition duration-200"><?php echo $locations;?></h3>
                                 </a>
                             </div>
                         </div>
                     </div>
                     <!--/Metric Card-->
                 </div>
+
             </div>
 
 		</div>
