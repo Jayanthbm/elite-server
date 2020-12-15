@@ -8,6 +8,41 @@
         include('./conn.php');
 
         /**
+         * Get Store Status
+        */
+        function getStorestatus($storeId){
+            global $conn;
+            $ssq = "SELECT MAX(playedOn) as playedOn
+                    FROM video_activity_log
+                    WHERE storeId= $storeId";
+            $ssqr = mysqli_query($conn,$ssq);
+            if(!mysqli_query($conn,$ssq)){
+                return 'Offline';
+            }else{
+                while($row = mysqli_fetch_array($ssqr)){
+                    $playedOn = $row['playedOn'];
+                    if($playedOn){
+                    date_default_timezone_set("Asia/Kolkata");
+                    $datetime1 = new DateTime($playedOn);
+                    $datetime2 = new DateTime();
+                    $interval = $datetime1->diff($datetime2);
+                    if($interval->d > 0 || $interval->m > 0 || $interval->y > 0|| $interval->h > 0){
+                        return 'Offline';
+                    }else{
+                        if($interval->i > 30){
+                                return 'Offline';
+                        }else{
+                                return 'Online';
+                        }
+                    }
+                    }else{
+                        return 'Offline';
+                    }
+                }
+            }
+        }
+
+        /**
          * Total Videos
          */
         $vq =  "SELECT COUNT(*)
@@ -36,10 +71,18 @@
         /**
          * Total Active Stores
          */
-        $asq =  "SELECT COUNT(*)
+        $astores = 0;
+        $asq =  "SELECT id
                 FROM stores";
         $asqr = mysqli_query($conn,$asq);
-        $astores = mysqli_fetch_array($asqr)[0];
+        if(mysqli_num_rows($asqr) > 0){
+            while($r = mysqli_fetch_array($asqr)){
+                $t = getStorestatus($r['id']);
+                if($t =='Online'){
+                    $astores+=1;
+                }
+            }
+        }
 
         /**
          * Total Categories
@@ -56,6 +99,39 @@
                 FROM location";
         $lqr = mysqli_query($conn,$lq);
         $locations = mysqli_fetch_array($lqr)[0];
+
+        /**
+         * Get All Stores
+         */
+        $storesql = "SELECT *
+                        FROM stores
+                        WHERE isActive=1";
+        $storeResult = mysqli_query($conn, $storesql);
+
+        /**
+         * Get Last Played Video
+         */
+        function getLastVideoPlayed($storeId){
+            global $conn;
+            $r = array();
+            $lvp = "SELECT videos.videoName,playedOn
+                    FROM video_activity_log,videos
+                    WHERE storeId= $storeId AND video_activity_log.VideoId =videos.videoId
+                    ORDER BY playedOn DESC
+                    LIMIT 1 ";
+            $lvpr = mysqli_query($conn,$lvp);
+            if(mysqli_num_rows($lvpr)> 0){
+                while($row = mysqli_fetch_array($lvpr)){
+                    $videoName = $row['videoName'];
+                    $playedOn = $row['playedOn'];
+                }
+                array_push($r,array('videoName'=>$videoName,'Playedon'=>$playedOn));
+            }else{
+                array_push($r,array('videoName'=>'','Playedon'=>''));
+            }
+            return $r;
+        }
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -79,7 +155,7 @@
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 
 </head>
-<body class="body-bg font-sans leading-normal tracking-normal">
+<body class="body-bg leading-normal tracking-normal">
 
     <nav id="header" class="bg-gray-900 fixed w-full z-10 top-0 shadow">
 
@@ -153,12 +229,11 @@
 
 	<!--Container-->
 	<div class="container w-full mx-auto pt-20">
-
 		<div class="w-full px-4 md:px-0 md:mt-8 mb-16 text-gray-800 leading-normal">
-
 			<!--Console Content-->
 
 			<div class="bg-white flex flex-wrap">
+
                 <div class="w-full md:w-1/2 xl:w-1/3 p-3">
                     <!--Metric Card-->
                     <div class="rounded bg-gray-200 border border-white-800 rounded shadow p-2">
@@ -266,9 +341,82 @@
             </div>
 
 		</div>
-
+        <?php if (mysqli_num_rows($storeResult) > 0) { ?>
+            <?php
+                while ($row = mysqli_fetch_array($storeResult)) {
+                    $id = $row['id'];
+                    $storeName = $row['storeName'];
+                    $createdOn = $row['createdOn'];
+                    $onlineStatus = getStorestatus($id);
+                    $lp = getLastVideoPlayed($id);
+                    if($lp[0]['videoName']){
+                        $lpName = $lp[0]['videoName'];
+                    }else{
+                        $lpName ='No Video Played';
+                    }
+                    $lptime = $lp[0]['Playedon'];
+                    ?>
+                <div class="flex flex-wrap -m-3">
+                    <div class="w-full sm:w-1/2 md:w-1/3 flex flex-col p-3">
+                        <div class="bg-white rounded-lg shadow-lg overflow-hidden flex-1 flex flex-col">
+                            <div class="p-4 flex-1 flex flex-col" style="">
+                                <h3 class="mb-4 text-2xl"><?php echo $storeName;?></h3>
+                                <div class="mb-4 text-grey-darker text-sm flex-1">
+                                    <p>
+                                        <b>Last Video Played:</b>
+                                        <?php echo $lpName;?>
+                                    </p>
+                                    <p>
+                                        <b>Played On:</b>
+                                        <?php echo $lptime;?>
+                                    </p>
+                                    <p>
+                                        <b>Store Status:</b>
+                                        <?php echo $onlineStatus;?>
+                                    </p>
+                                </div>
+                                <button class="px-4 bg-indigo-500 p-3 rounded-lg text-white text-center hover:bg-indigo-400 mb-2"
+                                        onclick="openStore(<?php echo $id;?>,'<?php echo $storeName;?>')">More
+                                        Details </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php } } ?>
 
 	</div>
+    <!--More Deatails Modal Start -->
+
+		<div class="modal opacity-0 pointer-events-none fixed w-full h-full top-0 left-0 flex items-center justify-center" id="storeDetails">
+			<div class="modal-overlay absolute w-full h-full bg-gray-900 opacity-50"></div>
+				<div class="modal-container bg-white w-11/12 md:max-w-md mx-auto rounded shadow-lg z-50 overflow-y-auto">
+
+					<div class="modal-close absolute top-0 right-0 cursor-pointer flex flex-col items-center mt-4 mr-4 text-white text-sm z-50">
+						<svg class="fill-current text-white" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+							<path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+						</svg>
+						<span class="text-sm">(Esc)</span>
+					</div>
+
+					<!-- Add margin if you want to see some of the overlay behind the modal-->
+					<div class="modal-content py-4 text-left px-6">
+						<!--Title-->
+						<div class="flex justify-between items-center pb-3">
+							<p class="text-2xl font-bold" id="storeTitle"></p>
+							<div class="modal-close cursor-pointer z-50">
+								<svg class="fill-current text-black" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 18 18">
+								<path d="M14.53 4.53l-1.06-1.06L9 7.94 4.53 3.47 3.47 4.53 7.94 9l-4.47 4.47 1.06 1.06L9 10.06l4.47 4.47 1.06-1.06L10.06 9z"></path>
+								</svg>
+							</div>
+						</div>
+
+						<!--Body-->
+                        <div id="moreDetails"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	<!--More Deatails Modal End -->
 	<!--/container-->
 
     <!-- Jquery -->
@@ -279,6 +427,21 @@
 	<script src="./js/main.js"></script>
 	<!--Datatables  -->
 	<script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        function openStore(id, name) {
+            let url = `moreStoreDetails.php?id=${id}`
+            $('#storeTitle').html('');
+            $('#storeTitle').html(`Store Details of ${name}`);
+            $('#moreDetails').load(url,
+                function() {
+                    $('#storeDetails').modal({
+                        show: true
+                    });
+            });
+            toggleModal();
+        }
+    </script>
 </body>
 
 </html>
