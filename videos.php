@@ -65,47 +65,27 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Elite -Videos</title>
+	<!-- custom css -->
 
-      <!-- custom css -->
     <link href="./css/styles.css" rel="stylesheet">
+
     <!-- Tailwind css -->
-    <link href="./css/tailwind.min.css" rel="stylesheet">
+
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.0.2/tailwind.min.css" integrity="sha512-+WF6UMXHki/uCy0vATJzyA9EmAcohIQuwpNz0qEO+5UeE5ibPejMRdFuARSrl1trs3skqie0rY/gNiolfaef5w==" crossorigin="anonymous" />
+
+	<!--font awesome css -->
 
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
 
 	<!--Regular Datatables CSS-->
-	<link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet">
-	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
-	<link rel="stylesheet" href="./css/uploadfile.css" />
-	<style>
-		.switch-field {
-			display: flex;
-			overflow: hidden;
-		}
 
-		.btnn{
-			color: rgba(0, 0, 0, 0.6);
-			font-size: 14px;
-			line-height: 1;
-			text-align: center;
-			padding: 8px 16px;
-			margin-right: -1px;
-			border: 1px solid rgba(0, 0, 0, 0.2);
-			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
-			transition: all 0.1s ease-in-out;
-		}
-		.inactive{
-			background-color: #e4e4e4;
-			box-shadow: none;
-			cursor:'pointer'
-		}
-		.active{
-			background-color: #a5dc86;
-			box-shadow: none;
-			pointer-events: none;
-			cursor: not-allowed;
-		}
-	</style>
+	<link href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" rel="stylesheet">
+
+	<!--Select 2 css -->
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+
+	<!--Upload file css -->
+	<link rel="stylesheet" href="./css/uploadfile.css" />
 </head>
 <body class="body-bg font-sans leading-normal tracking-normal">
 
@@ -265,7 +245,7 @@
 	<!--Upload Video Modal End -->
 
  	<!-- Jquery -->
-	<script src="./js/jquery-3.5.1.min.js"></script>
+	<script src="https://code.jquery.com/jquery-3.5.1.min.js"   integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
 	<!--Modal JS-->
 	<script src="./js/modal.js"></script>
 	<!-- Main Js -->

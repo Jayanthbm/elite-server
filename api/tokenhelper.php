@@ -13,8 +13,11 @@ function encode_jwt($storeId,$secretKey){
 
 function decode_jwt($jwt, $secretKey)
 {
-    $decoded = JWT::decode($jwt, $secretKey, array('HS256'));
-    $id = $decoded->id;
+    try {
+        $decoded = JWT::decode($jwt, $secretKey, array('HS256'));
+        $id = $decoded->id;
+    } catch (\Throwable $th) {
+        return null;
+    }
     return $id;
-
 }

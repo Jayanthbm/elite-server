@@ -4,7 +4,7 @@
 
     function deleteVideoAccess($conn,$videoId){
         global $conn;
-        $dQ = "DELETE FROM video_disbaled_store WHERE           videoId=$videoId";
+        $dQ = "DELETE FROM video_disbaled_store WHERE videoId=$videoId";
         if(!mysqli_query($conn,$dQ)){
             echo mysqli_error($conn);
             return 0;
@@ -44,7 +44,7 @@
     $locationId = $_GET['loc'];
     $sid = $_GET['sid'];
     if($videoId){
-        $ids = explode(",",$_GET['vid']);
+        $ids = explode(",",$_GET['sid']);
         $c = deleteVideoAccess($conn,$videoId);
         if($c == 1){
             if(strlen($_GET['vid'])> 0){

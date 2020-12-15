@@ -13,10 +13,11 @@ function Update_video_activity($videoId,$storeId){
             WHERE videoId =$videoId";
             mysqli_query($conn,$vS);
 
-    $vQ = "INSERT INTO video_activity_log(storeId,VideoId,playedOn)VALUES($storeId,     $videoId,'$date_time')";
+    $vQ = "INSERT INTO video_activity_log(storeId,VideoId,playedOn)VALUES($storeId,$videoId,'$date_time')";
     mysqli_query($conn,$vQ);
     return true;
 }
+
 function checkVideoId($videoId){
     global $conn;
     $cV = "SELECT * FROM videos WHERE videoId =$videoId";

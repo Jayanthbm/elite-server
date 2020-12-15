@@ -95,3 +95,31 @@
 		table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before, table.dataTable.dtr-inline.collapsed>tbody>tr>th:first-child:before {
 			background-color: #667eea !important; /*bg-indigo-500*/
 		}
+
+.switch-field {
+			display: flex;
+			overflow: hidden;
+		}
+
+		.btnn{
+			color: rgba(0, 0, 0, 0.6);
+			font-size: 14px;
+			line-height: 1;
+			text-align: center;
+			padding: 8px 16px;
+			margin-right: -1px;
+			border: 1px solid rgba(0, 0, 0, 0.2);
+			box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px rgba(255, 255, 255, 0.1);
+			transition: all 0.1s ease-in-out;
+		}
+		.inactive{
+			background-color: #e4e4e4;
+			box-shadow: none;
+			cursor:'pointer'
+		}
+		.active{
+			background-color: #a5dc86;
+			box-shadow: none;
+			pointer-events: none;
+			cursor: not-allowed;
+		}

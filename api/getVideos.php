@@ -6,6 +6,8 @@ include('./constants.php');
 include('./tokenhelper.php');
 include('./bearer_helper.php');
 
+ $res = (object) null;
+
 function getDisabledVideoIds($storeId){
     global $conn;
     $videoIds =[];
@@ -28,15 +30,57 @@ function getDisabledVideoIds($storeId){
     }
 }
 
+function getGlobalVideoIds(){
+    global $conn;
+    $videoIds =[];
+    $dQ ="SELECT videoId
+            FROM videos
+            WHERE isGlobal = 1";
+    if(!mysqli_query($conn,$dQ)){
+        return mysqli_error($conn);
+    }else{
+        $dQR = mysqli_query($conn,$dQ);
+        if(mysqli_num_rows($dQR) > 0){
+            while($row = mysqli_fetch_array($dQR)){
+                $videoId = $row['videoId'];
+                array_push($videoIds,$videoId);
+            }
+        }else{
+            return $videoIds;
+        }
+    return $videoIds;
+    }
+}
+function getVideoIds($categoryId,$locationId){
+    global $conn;
+    $videoIds =[];
+    $dQ ="SELECT videoId
+            FROM videos
+            WHERE categoryId = $categoryId AND locationId=$locationId";
+    if(!mysqli_query($conn,$dQ)){
+        return mysqli_error($conn);
+    }else{
+        $dQR = mysqli_query($conn,$dQ);
+        if(mysqli_num_rows($dQR) > 0){
+            while($row = mysqli_fetch_array($dQR)){
+                $videoId = $row['videoId'];
+                array_push($videoIds,$videoId);
+            }
+        }else{
+            return $videoIds;
+        }
+    return $videoIds;
+    }
+}
+
 function getVideos($vids){
     global $conn;
     $result = [];
-    //Get a list of Videos
     if(sizeof($vids) > 0){
         $v = implode(',', $vids);
         $vq = "SELECT videoId,videoName,videoSize,location,totalPlays
                 FROM videos
-            WHERE isPublished = 1 AND videoId NOT IN ($v)";
+                WHERE isPublished = 1 AND videoId IN ($v)";
         }else{
             $vq = "SELECT videoId,videoName,videoSize,location,totalPlays
                 FROM videos
@@ -67,23 +111,54 @@ function getVideos($vids){
     }
     return $result;
 }
+function getCategoryIdFromStore($storeId){
+    global $conn;
+    $query ="SELECT categoryId
+            FROM stores
+            WHERE id=$storeId";
+    $result= mysqli_query($conn,$query);
+    return mysqli_fetch_array($result)[0];
+}
+
+function getLocationIdFromStore($storeId){
+    global $conn;
+    $query ="SELECT locationId
+            FROM stores
+            WHERE id=$storeId";
+    $result= mysqli_query($conn,$query);
+    return mysqli_fetch_array($result)[0];
+}
 
 $token = getBearerToken();
 if($token){
     $id =decode_jwt($token, $secretKey);
     if($id){
-        // Get the list of videoIds disbaled for this store
-        $videoIds = getDisabledVideoIds($id);
-        $r = getVideos($videoIds);
-        echo json_encode($r);
-        exit();
+        $videoIdArray = array();
+        $categoryId = getCategoryIdFromStore($id);
+        $locationId = getLocationIdFromStore($id);
+        $globalVideoIds =getGlobalVideoIds();
+        $videoIds = getVideoIds($categoryId,$locationId);
+        foreach($globalVideoIds as $glo){
+            array_push($videoIdArray,$glo);
+        }
+        foreach($videoIds as $vid){
+            array_push($videoIdArray,$vid);
+        }
+        $videoIdSet = array_unique($videoIdArray);
+        $disbaledvideoIds = getDisabledVideoIds($id);
+        $tmp = array_diff($videoIdSet, $disbaledvideoIds);
+        $finalVideoIds = array();
+        foreach ($tmp as $value) {
+            array_push($finalVideoIds,$value);
+        }
+        $r = getVideos($finalVideoIds);
+        $res->videos = $r;
     }else{
-        $result = ['message' => 'Error Fetching Videos'];
-        echo json_encode($result);
-        exit();
+        $res->message = 'Missing Authorization';
     }
 }else {
-    $result = ['message' => 'Missing Authorization'];
-    echo json_encode($result);
-    exit();
+    $res->message = 'Missing Authorization';
+
 }
+echo json_encode($res);
+exit();

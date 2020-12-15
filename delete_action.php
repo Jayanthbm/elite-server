@@ -10,8 +10,18 @@ function deleteVideoAccess($conn,$videoId){
         return 1;
     }
 }
-
+function deleteVideoActivity($videoId){
+        global $conn;
+        $dQ = "DELETE FROM video_activity_log WHERE VideoId=$videoId";
+        if(!mysqli_query($conn,$dQ)){
+            echo mysqli_error($conn);
+            return 0;
+        }else{
+            return 1;
+        }
+    }
 function deleteVideo($conn,$videoId){
+        deleteVideoActivity($videoId);
         $dQ = "DELETE FROM videos WHERE videoId=$videoId";
         if(!mysqli_query($conn,$dQ)){
             echo mysqli_error($conn);

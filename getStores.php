@@ -25,16 +25,18 @@
         $output.="<table id=\"store\" class=\"stripe hover\">
                     <thead>
                         <tr>
-							<th data-priority=\"1\" class=\"text-left\">StoreId</th>
-							<th data-priority=\"2\" class=\"text-left\">Name</th>
-							<th data-priority=\"3\" class=\"text-left\">Category</th>
-							<th data-priority=\"4\" class=\"text-left\">Location</th>
-							<th data-priority=\"5\" class=\"text-left\">Is LoggedIn</th>
-							<th data-priority=\"6\" class=\"text-left\">Last Login time</th>
+							<th class=\"text-left\">StoreId</th>
+							<th class=\"text-left\">Name</th>
+							<th class=\"text-left\">Category</th>
+							<th class=\"text-left\">Location</th>
+							<th class=\"text-left\">Is LoggedIn</th>
+                            <th class=\"text-left\">Last Login time</th>
+                            <th></th>
 						</tr>
 					</thead>
                     <tbody>";
         while($r = mysqli_fetch_array($storeResult)){
+            $id = $r['id'];
             $storeId = $r['storeId'];
             $storeName = $r['storeName'];
             $categoryId = $r['categoryId'];
@@ -43,6 +45,7 @@
             $lastLoginTime = $r['lastLoginTime'];
             $categoryName = getCategoryName($categoryId);
             $locationName = getLocationName($locationId);
+            $deletefunction = "onclick=deleteStore($id)";
             if($isLoggedin){
                 $isLoggedin ='Yes';
             }else{
@@ -55,6 +58,7 @@
             $output.="<td class=\"text-left\">$locationName</td>";
             $output.="<td class=\"text-left\">$isLoggedin</td>";
             $output.="<td class=\"text-left\">$lastLoginTime</td>";
+            $output.="<td><button class=\"btnn\" $deletefunction>Delete</button></td>";
             $output.="</tr>";
         }
          $output.="</tbody></table>";
