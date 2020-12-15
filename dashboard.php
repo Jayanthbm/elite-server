@@ -342,6 +342,7 @@
 
 		</div>
         <?php if (mysqli_num_rows($storeResult) > 0) { ?>
+        <div class="flex flex-wrap -m-3">
             <?php
                 while ($row = mysqli_fetch_array($storeResult)) {
                     $id = $row['id'];
@@ -356,7 +357,6 @@
                     }
                     $lptime = $lp[0]['Playedon'];
                     ?>
-                <div class="flex flex-wrap -m-3">
                     <div class="w-full sm:w-1/2 md:w-1/3 flex flex-col p-3">
                         <div class="bg-white rounded-lg shadow-lg overflow-hidden flex-1 flex flex-col">
                             <div class="p-4 flex-1 flex flex-col" style="">
@@ -381,9 +381,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
             <?php } } ?>
-
+         </div>
 	</div>
     <!--More Deatails Modal Start -->
 
